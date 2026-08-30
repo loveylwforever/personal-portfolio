@@ -1,0 +1,36 @@
+<script setup lang="ts">
+defineProps<{
+  initials: string
+}>()
+
+const route = useRoute()
+
+const links = [
+  { label: '关于', to: '/#about' },
+  { label: '经历', to: '/#experience' },
+  { label: '联系', to: '/#contact' }
+]
+</script>
+
+<template>
+  <header class="nav-wrap">
+    <nav class="pill-nav" aria-label="主要导航" data-read-safe="block">
+      <NuxtLink class="monogram" to="/" aria-label="返回首页">{{ initials }}</NuxtLink>
+
+      <div class="nav-links">
+        <a v-for="link in links" :key="link.to" :href="link.to">
+          {{ link.label }}
+        </a>
+      </div>
+
+      <NuxtLink
+        class="nav-tip"
+        to="/tip"
+        :aria-current="route.path === '/tip' ? 'page' : undefined"
+      >
+        <span class="nav-tip-text">打赏一下</span>
+        <AppIcon name="i-lucide-coffee" />
+      </NuxtLink>
+    </nav>
+  </header>
+</template>
