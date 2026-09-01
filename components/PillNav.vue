@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { profile } from '~/data/profile'
+
 defineProps<{
   initials: string
 }>()
 
 const route = useRoute()
 
-const links = [
+const links = computed(() => [
   { label: '关于', to: '/#about' },
-  { label: '经历', to: '/#experience' },
+  ...(profile.showExperience ? [{ label: '经历', to: '/#experience' }] : []),
   { label: '联系', to: '/#contact' }
-]
+])
 </script>
 
 <template>

@@ -65,10 +65,21 @@ const toggleExperience = (index: number) => {
           </div>
 
           <div class="hero-actions reveal reveal-4" data-read-safe="block">
-            <a class="primary-action" href="#experience">
+            <a
+              v-if="profile.showExperience"
+              class="primary-action"
+              href="#experience"
+            >
               <span class="primary-action-spin" aria-hidden="true" />
               <span class="primary-action-inner">
                 工作经历
+                <AppIcon name="i-lucide-arrow-down" />
+              </span>
+            </a>
+            <a v-else class="primary-action" href="#contact">
+              <span class="primary-action-spin" aria-hidden="true" />
+              <span class="primary-action-inner">
+                联系合作
                 <AppIcon name="i-lucide-arrow-down" />
               </span>
             </a>
@@ -120,7 +131,11 @@ const toggleExperience = (index: number) => {
         </div>
       </section>
 
-      <section id="experience" class="experience section-shell content-section">
+      <section
+        v-if="profile.showExperience"
+        id="experience"
+        class="experience section-shell content-section"
+      >
         <div class="section-label" data-read-safe>
           <span>经历</span>
           <span>{{ profile.experience.length.toString().padStart(2, '0') }}</span>

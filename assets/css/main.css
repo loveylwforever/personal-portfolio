@@ -441,7 +441,6 @@ a {
 .about-lead {
   display: grid;
   gap: 10px;
-  max-width: 38rem;
 }
 
 .about-lead p {
