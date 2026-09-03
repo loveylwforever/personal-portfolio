@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { profile } from '~/data/profile'
 
-defineProps<{
-  initials: string
-}>()
-
 const route = useRoute()
 
 const links = computed(() => [
@@ -18,10 +14,16 @@ const links = computed(() => [
 <template>
   <header class="nav-wrap">
     <nav class="pill-nav" aria-label="主要导航" data-read-safe="block">
-      <NuxtLink class="monogram" to="/" aria-label="返回首页">{{ initials }}</NuxtLink>
+      <NuxtLink class="monogram" to="/" aria-label="返回首页">
+        {{ profile.initials }}
+      </NuxtLink>
 
       <div class="nav-links">
-        <a v-for="link in links" :key="link.to" :href="link.to">
+        <a
+          v-for="link in links"
+          :key="link.to"
+          :href="link.to"
+        >
           {{ link.label }}
         </a>
       </div>

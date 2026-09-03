@@ -12,10 +12,7 @@ const emit = defineEmits<{
 
 <template>
   <section id="experience" class="experience section-shell content-section">
-    <div class="section-label" data-read-safe>
-      <span>经历</span>
-      <span>{{ String(profile.experience.length).padStart(2, '0') }}</span>
-    </div>
+    <div class="section-label" data-read-safe>工作经历</div>
 
     <ol class="experience-list">
       <li

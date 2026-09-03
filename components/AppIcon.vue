@@ -1,9 +1,12 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   name: string
 }>()
 
-type IconDef = { paths: string[], rect?: { x: number, y: number, width: number, height: number, rx?: number } }
+type IconDef = {
+  paths: string[]
+  rect?: { x: number, y: number, width: number, height: number, rx?: number }
+}
 
 const icons: Record<string, IconDef> = {
   'i-lucide-coffee': {
@@ -26,12 +29,14 @@ const icons: Record<string, IconDef> = {
     paths: ['M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z']
   }
 }
+
+const icon = computed(() => icons[props.name])
 </script>
 
 <template>
   <span class="app-icon" aria-hidden="true">
     <svg
-      v-if="icons[name]"
+      v-if="icon"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -39,11 +44,8 @@ const icons: Record<string, IconDef> = {
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <path v-for="(d, i) in icons[name].paths" :key="i" :d="d" />
-      <rect
-        v-if="icons[name].rect"
-        v-bind="icons[name].rect"
-      />
+      <path v-for="(d, i) in icon.paths" :key="i" :d="d" />
+      <rect v-if="icon.rect" v-bind="icon.rect" />
     </svg>
   </span>
 </template>

@@ -4,9 +4,7 @@ import { profile } from '~/data/profile'
 
 <template>
   <section id="stack" class="stack section-shell content-section">
-    <div class="section-label" data-read-safe>
-      <span>技术</span>
-    </div>
+    <div class="section-label" data-read-safe>技能图谱</div>
 
     <div class="stack-groups">
       <div

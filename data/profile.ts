@@ -1,13 +1,22 @@
+/**
+ * Site content — edit copy here; layout lives in pages/components.
+ */
 export const profile = {
   /** Flip to true to show the experience accordion again. */
   showExperience: false,
+
+  // —— Identity ——
   name: '高健JamieGao',
   initials: 'GJ',
   role: '全栈开发工程师',
-  location: '中国 · 上海',
   status: '接受新项目',
-  intro: '全栈贯通，交付从容。',
   email: '214142603@qq.com',
+
+  // —— Hero ——
+  intro: '精研方案，深耕全栈。',
+  introEn: 'Refine the plan. Cultivate the stack.',
+
+  // —— About ——
   bio: [
     '十余年金融科技与企业系统经验，深耕银行核心、支付结算、智能客服等复杂场景。',
     '独立承担方案、开发、部署与运维的全链路工作，能在完整项目周期内推进交付。'
@@ -15,6 +24,12 @@ export const profile = {
   goal: '将复杂问题拆解为清晰、稳定、可扩展的系统架构。',
   values: '先理解，再动手；重质量，重演进。',
   focus: '当前承接独立开发与系统优化项目，结合 AI 工程能力提升需求分析、开发联调与上线效率。',
+
+  // —— Contact ——
+  contactLabel: '欢迎合作',
+  contactLine: '有合适的项目，随时联系。',
+
+  // —— Experience (hidden while showExperience is false) ——
   experience: [
     {
       company: '高伟达',
@@ -77,6 +92,8 @@ export const profile = {
       ]
     }
   ],
+
+  // —— Tech stack ——
   stacks: [
     {
       title: '后端与语言',
@@ -134,6 +151,8 @@ export const profile = {
       ]
     }
   ],
+
+  // —— Social ——
   social: [
     { label: 'GitHub', url: 'https://github.com/loveylwforever', icon: 'i-lucide-github' },
     { label: 'Bilibili', url: 'https://space.bilibili.com/336117051', icon: 'i-lucide-tv' },

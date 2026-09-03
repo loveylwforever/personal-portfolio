@@ -30,18 +30,16 @@ const toggleExperience = (index: number) => {
     <ClientOnly>
       <LazyAmbientField />
     </ClientOnly>
-    <PillNav :initials="profile.initials" />
+    <PillNav />
 
     <main>
+      <!-- Hero -->
       <section class="hero section-shell" aria-labelledby="hero-title">
         <div class="hero-glow" aria-hidden="true" />
 
         <div class="hero-copy" data-read-safe>
           <div class="status-pill reveal reveal-1" data-read-safe="block">
-            <span class="status-pulse" aria-hidden="true">
-              <span class="status-pulse-ring" />
-              <span class="status-pulse-core" />
-            </span>
+            <StatusMark variant="pulse" />
             <span>{{ profile.status }}</span>
           </div>
 
@@ -51,6 +49,7 @@ const toggleExperience = (index: number) => {
 
           <p class="hero-role reveal reveal-2">{{ profile.role }}</p>
           <p class="hero-intro reveal reveal-3">{{ profile.intro }}</p>
+          <p class="hero-intro-en reveal reveal-3">{{ profile.introEn }}</p>
 
           <div class="hero-socials reveal reveal-3" data-read-safe="block">
             <a
@@ -67,23 +66,16 @@ const toggleExperience = (index: number) => {
 
           <div class="hero-actions reveal reveal-4" data-read-safe="block">
             <a class="primary-action" :href="primaryAction.href">
-              <span class="primary-action-spin" aria-hidden="true" />
-              <span class="primary-action-inner">
-                {{ primaryAction.label }}
-                <AppIcon name="i-lucide-arrow-down" />
-              </span>
-            </a>
-            <a class="text-action" :href="`mailto:${profile.email}`">
-              {{ profile.email }}
+              {{ primaryAction.label }}
+              <AppIcon name="i-lucide-arrow-down" />
             </a>
           </div>
         </div>
       </section>
 
+      <!-- About -->
       <section id="about" class="about section-shell content-section">
-        <div class="section-label" data-read-safe>
-          <span>关于</span>
-        </div>
+        <div class="section-label" data-read-safe>关于作者</div>
 
         <div class="about-body">
           <div class="about-lead" data-read-safe>
@@ -109,11 +101,7 @@ const toggleExperience = (index: number) => {
 
           <div class="about-focus" data-read-safe="block">
             <span class="status-pill about-focus-label">
-              <span class="status-radar" aria-hidden="true">
-                <span class="status-radar-sweep" />
-                <span class="status-radar-ring" />
-                <span class="status-radar-core" />
-              </span>
+              <StatusMark variant="radar" />
               现在
             </span>
             <p>{{ profile.focus }}</p>
@@ -127,22 +115,24 @@ const toggleExperience = (index: number) => {
         @toggle="toggleExperience"
       />
 
+      <!-- Contact -->
       <section id="contact" class="contact section-shell content-section">
-        <div class="section-label" data-read-safe>
-          <span>联系</span>
-        </div>
+        <div class="section-label" data-read-safe>联系作者</div>
 
         <SpotlightCard class="contact-inner" data-read-safe="block">
           <div class="contact-copy">
-            <p class="contact-kicker">
-              <span class="status-dot" />
-              欢迎合作
-            </p>
-            <h2>有合适的项目，随时联系。</h2>
+            <span class="status-pill contact-kicker">
+              <StatusMark variant="coop" />
+              {{ profile.contactLabel }}
+            </span>
+            <span class="contact-line">{{ profile.contactLine }}</span>
           </div>
+
           <a class="contact-cta" :href="`mailto:${profile.email}`">
-            <span>{{ profile.email }}</span>
-            <AppIcon name="i-lucide-arrow-up-right" />
+            <span class="contact-cta-label">{{ profile.email }}</span>
+            <span class="contact-cta-icon" aria-hidden="true">
+              <AppIcon name="i-lucide-arrow-up-right" />
+            </span>
           </a>
         </SpotlightCard>
       </section>

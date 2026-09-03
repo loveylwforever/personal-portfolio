@@ -16,7 +16,7 @@ useSeoMeta({
     <ClientOnly>
       <LazyAmbientField />
     </ClientOnly>
-    <PillNav :initials="profile.initials" />
+    <PillNav />
 
     <main class="tip-main">
       <div class="tip-glow" aria-hidden="true" />
