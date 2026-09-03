@@ -1,4 +1,5 @@
 export const profile = {
+  /** Flip to true to show the experience accordion again. */
   showExperience: false,
   name: '高健JamieGao',
   initials: 'GJ',
@@ -73,6 +74,63 @@ export const profile = {
         '负责智能语音机器人对话管理中控平台建设与演进，面向金服 / 寿险 / 产险提供外呼与呼入能力。',
         '打通电话平台与 ASR / TTS / NLP / LLM 引擎，支撑贷款前筛、售后回访、营销等场景规模化落地。',
         '建设可观测性与工程化体系，沉淀话术与能力复用，缩短新场景上线周期并减少人工坐席投入。'
+      ]
+    }
+  ],
+  stacks: [
+    {
+      title: '后端与语言',
+      items: [
+        { name: 'Java', icon: 'java' },
+        { name: 'Spring Boot', icon: 'springboot' },
+        { name: 'Spring Cloud', icon: 'spring' },
+        { name: 'C', icon: 'c' },
+        { name: 'Rust', icon: 'rust' },
+        { name: 'Python', icon: 'python' }
+      ]
+    },
+    {
+      title: '前端与跨端',
+      items: [
+        { name: 'Vue', icon: 'vue' },
+        { name: 'TypeScript', icon: 'typescript' },
+        { name: 'JavaScript', icon: 'javascript' },
+        { name: 'HTML', icon: 'html' },
+        { name: 'Element UI', icon: 'element' },
+        { name: 'Nuxt', icon: 'nuxt' },
+        { name: '微信小程序', icon: 'wechat' },
+        { name: 'UniApp', icon: 'uniapp' }
+      ]
+    },
+    {
+      title: '数据与中间件',
+      items: [
+        { name: 'MySQL', icon: 'mysql' },
+        { name: 'PostgreSQL', icon: 'postgres' },
+        { name: 'Redis', icon: 'redis' },
+        { name: 'MQ', icon: 'mq' },
+        { name: 'Kafka', icon: 'kafka' }
+      ]
+    },
+    {
+      title: '工程与运维',
+      items: [
+        { name: 'Docker', icon: 'docker' },
+        { name: 'Linux', icon: 'linux' },
+        { name: 'Git', icon: 'git' },
+        { name: 'GitHub', icon: 'github' },
+        { name: 'Shell / Bash', icon: 'shell' }
+      ]
+    },
+    {
+      title: 'AI 工具',
+      items: [
+        { name: 'Cursor', icon: 'cursor' },
+        { name: 'Claude Code', icon: 'claude' },
+        { name: 'Antigravity', icon: 'antigravity' },
+        { name: 'Codex', icon: 'codex' },
+        { name: 'CodeBuddy', icon: 'codebuddy' },
+        { name: 'QClaw', icon: 'qclaw' }
       ]
     }
   ],

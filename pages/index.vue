@@ -13,11 +13,15 @@ useSeoMeta({
 const currentYear = new Date().getFullYear()
 const openExperience = ref<number | null>(null)
 
+const primaryAction = computed(() =>
+  profile.showExperience
+    ? { href: '#experience', label: '工作经历' }
+    : { href: '#contact', label: '联系合作' }
+)
+
 const toggleExperience = (index: number) => {
   openExperience.value = openExperience.value === index ? null : index
-  nextTick(() => {
-    window.dispatchEvent(new Event('scroll'))
-  })
+  nextTick(() => window.dispatchEvent(new Event('scroll')))
 }
 </script>
 
@@ -46,10 +50,7 @@ const toggleExperience = (index: number) => {
           </h1>
 
           <p class="hero-role reveal reveal-2">{{ profile.role }}</p>
-
-          <p class="hero-intro reveal reveal-3">
-            {{ profile.intro }}
-          </p>
+          <p class="hero-intro reveal reveal-3">{{ profile.intro }}</p>
 
           <div class="hero-socials reveal reveal-3" data-read-safe="block">
             <a
@@ -65,21 +66,10 @@ const toggleExperience = (index: number) => {
           </div>
 
           <div class="hero-actions reveal reveal-4" data-read-safe="block">
-            <a
-              v-if="profile.showExperience"
-              class="primary-action"
-              href="#experience"
-            >
+            <a class="primary-action" :href="primaryAction.href">
               <span class="primary-action-spin" aria-hidden="true" />
               <span class="primary-action-inner">
-                工作经历
-                <AppIcon name="i-lucide-arrow-down" />
-              </span>
-            </a>
-            <a v-else class="primary-action" href="#contact">
-              <span class="primary-action-spin" aria-hidden="true" />
-              <span class="primary-action-inner">
-                联系合作
+                {{ primaryAction.label }}
                 <AppIcon name="i-lucide-arrow-down" />
               </span>
             </a>
@@ -93,7 +83,6 @@ const toggleExperience = (index: number) => {
       <section id="about" class="about section-shell content-section">
         <div class="section-label" data-read-safe>
           <span>关于</span>
-          <span>{{ profile.location }}</span>
         </div>
 
         <div class="about-body">
@@ -119,10 +108,11 @@ const toggleExperience = (index: number) => {
           </div>
 
           <div class="about-focus" data-read-safe="block">
-            <span class="about-focus-label">
-              <span class="about-focus-pulse" aria-hidden="true">
-                <span class="about-focus-pulse-core" />
-                <span class="about-focus-pulse-ring" />
+            <span class="status-pill about-focus-label">
+              <span class="status-radar" aria-hidden="true">
+                <span class="status-radar-sweep" />
+                <span class="status-radar-ring" />
+                <span class="status-radar-core" />
               </span>
               现在
             </span>
@@ -131,76 +121,15 @@ const toggleExperience = (index: number) => {
         </div>
       </section>
 
-      <section
+      <ExperienceSection
         v-if="profile.showExperience"
-        id="experience"
-        class="experience section-shell content-section"
-      >
-        <div class="section-label" data-read-safe>
-          <span>经历</span>
-          <span>{{ profile.experience.length.toString().padStart(2, '0') }}</span>
-        </div>
-
-        <ol class="experience-list">
-          <li
-            v-for="(item, index) in profile.experience"
-            :key="item.company"
-          >
-            <SpotlightCard
-              as="div"
-              class="experience-item"
-              :class="{ current: item.current, open: openExperience === index }"
-              data-read-safe="block"
-            >
-              <button
-                type="button"
-                class="experience-toggle"
-                :aria-expanded="openExperience === index"
-                :aria-controls="`experience-panel-${index}`"
-                @click="toggleExperience(index)"
-              >
-                <span class="experience-index">{{ String(index + 1).padStart(2, '0') }}</span>
-                <div class="experience-main">
-                  <div class="experience-heading">
-                    <h2>{{ item.company }}</h2>
-                    <span v-if="item.current" class="experience-badge">在职</span>
-                  </div>
-                  <p>
-                    <span class="experience-title">{{ item.title }}</span>
-                    <span class="experience-sep" aria-hidden="true">·</span>
-                    <span>{{ item.start }}</span>
-                    <span class="experience-dash">—</span>
-                    <span>{{ item.end }}</span>
-                  </p>
-                </div>
-                <span class="experience-plus" aria-hidden="true">
-                  <span />
-                  <span />
-                </span>
-              </button>
-
-              <div
-                :id="`experience-panel-${index}`"
-                class="experience-panel"
-                :inert="openExperience !== index"
-              >
-                <div class="experience-panel-inner">
-                  <ul>
-                    <li v-for="(detail, detailIndex) in item.details" :key="detailIndex">
-                      {{ detail }}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </SpotlightCard>
-          </li>
-        </ol>
-      </section>
+        :open-index="openExperience"
+        @toggle="toggleExperience"
+      />
 
       <section id="contact" class="contact section-shell content-section">
         <div class="section-label" data-read-safe>
           <span>联系</span>
-          <span>合作</span>
         </div>
 
         <SpotlightCard class="contact-inner" data-read-safe="block">
@@ -217,6 +146,8 @@ const toggleExperience = (index: number) => {
           </a>
         </SpotlightCard>
       </section>
+
+      <StackSection />
     </main>
 
     <footer class="section-shell footer" data-read-safe>

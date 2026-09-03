@@ -10,7 +10,8 @@ const route = useRoute()
 const links = computed(() => [
   { label: '关于', to: '/#about' },
   ...(profile.showExperience ? [{ label: '经历', to: '/#experience' }] : []),
-  { label: '联系', to: '/#contact' }
+  { label: '联系', to: '/#contact' },
+  { label: '技术', to: '/#stack' }
 ])
 </script>
 

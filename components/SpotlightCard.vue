@@ -5,25 +5,31 @@ withDefaults(defineProps<{
   as: 'div'
 })
 
-const card = ref<HTMLElement | null>(null)
+const card = useTemplateRef<HTMLElement>('card')
+let frame = 0
 
 const onMove = (event: PointerEvent) => {
   const el = card.value
   if (!el) return
-  const box = el.getBoundingClientRect()
-  el.style.setProperty('--spot-x', `${event.clientX - box.left}px`)
-  el.style.setProperty('--spot-y', `${event.clientY - box.top}px`)
+  const { clientX, clientY } = event
+  if (frame) return
+  frame = requestAnimationFrame(() => {
+    frame = 0
+    const box = el.getBoundingClientRect()
+    el.style.setProperty('--spot-x', `${clientX - box.left}px`)
+    el.style.setProperty('--spot-y', `${clientY - box.top}px`)
+  })
 }
 
-const setRef = (el: Element | null) => {
-  card.value = el as HTMLElement | null
-}
+onBeforeUnmount(() => {
+  if (frame) cancelAnimationFrame(frame)
+})
 </script>
 
 <template>
   <component
     :is="as"
-    :ref="setRef"
+    ref="card"
     class="spotlight-card"
     @pointermove="onMove"
   >

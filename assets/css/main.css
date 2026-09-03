@@ -2,9 +2,9 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
   --bg: #0a0a0c;
   --surface: rgba(18, 18, 21, 0.52);
-  --text: #ededed;
-  --muted: #8a8a88;
-  --quiet: #6a6a68;
+  --text: #f2f2f0;
+  --muted: #a8a8a5;
+  --quiet: #858583;
   --line: rgba(255, 255, 255, 0.08);
   --line-strong: rgba(255, 255, 255, 0.16);
   --lime: #d6e8b8;
@@ -252,8 +252,8 @@ a {
 .status-pulse {
   position: relative;
   display: grid;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   overflow: hidden;
   place-items: center;
@@ -263,19 +263,19 @@ a {
 .status-pulse-core {
   position: relative;
   z-index: 1;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #22c55e;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
 }
 
 .status-pulse-ring {
   position: absolute;
-  inset: 2px;
+  inset: 1px;
   border-radius: 50%;
-  background: rgba(34, 197, 94, 0.55);
-  animation: status-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  background: rgba(34, 197, 94, 0.7);
+  animation: status-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 .status-dot {
@@ -310,7 +310,7 @@ a {
 .hero-intro {
   max-width: 520px;
   margin: 0;
-  color: rgba(255, 255, 255, 0.58);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 1.02rem;
   line-height: 1.7;
 }
@@ -420,6 +420,8 @@ a {
   border-top: 1px solid transparent;
   border-image: linear-gradient(90deg, transparent, rgba(200, 200, 200, 0.18), transparent) 1;
   scroll-margin-top: 76px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
 }
 
 .section-label {
@@ -451,7 +453,7 @@ a {
 }
 
 .about-lead-primary {
-  color: rgba(237, 237, 237, 0.82);
+  color: rgba(242, 242, 240, 0.9);
   font-size: 0.98rem;
   line-height: 1.72;
   letter-spacing: -0.01em;
@@ -521,7 +523,7 @@ a {
   position: relative;
   z-index: 1;
   margin: 0;
-  color: rgba(237, 237, 237, 0.88);
+  color: rgba(242, 242, 240, 0.92);
   font-size: 0.88rem;
   line-height: 1.55;
   letter-spacing: -0.01em;
@@ -535,68 +537,70 @@ a {
   align-items: center;
   margin: 0;
   padding: 12px 14px;
-  border: 1px solid rgba(140, 170, 150, 0.14);
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background:
-    linear-gradient(180deg, rgba(120, 150, 130, 0.07), rgba(120, 150, 130, 0.02)),
-    rgba(16, 18, 17, 0.55);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(14px) saturate(115%);
-  -webkit-backdrop-filter: blur(14px) saturate(115%);
+  background: var(--surface);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.05),
+    0 12px 40px rgba(0, 0, 0, 0.18);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
 }
 
 .about-focus-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
   flex: 0 0 auto;
-  padding: 3px 9px 3px 7px;
-  border: 1px solid rgba(140, 170, 150, 0.16);
-  border-radius: 999px;
-  background: rgba(28, 36, 32, 0.65);
-  color: #9bb5a6;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.56rem;
-  font-weight: 550;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  line-height: 1.3;
 }
 
-.about-focus-pulse {
+.status-radar {
   position: relative;
   display: grid;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   overflow: hidden;
   place-items: center;
   border-radius: 50%;
+  background: rgba(34, 197, 94, 0.08);
 }
 
-.about-focus-pulse-core {
-  position: relative;
-  z-index: 1;
-  width: 5px;
-  height: 5px;
+.status-radar-sweep {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
-  background: #7aab90;
-  box-shadow: 0 0 5px rgba(122, 171, 144, 0.35);
+  background: conic-gradient(
+    from 0deg,
+    rgba(34, 197, 94, 0.55) 0deg,
+    rgba(34, 197, 94, 0.18) 55deg,
+    transparent 110deg,
+    transparent 360deg
+  );
+  animation: status-radar-spin 2.2s linear infinite;
 }
 
-.about-focus-pulse-ring {
+.status-radar-ring {
   position: absolute;
   inset: 2px;
+  z-index: 1;
+  border: 1px solid rgba(34, 197, 94, 0.45);
   border-radius: 50%;
-  background: rgba(122, 171, 144, 0.42);
-  animation: status-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.12);
+}
+
+.status-radar-core {
+  position: relative;
+  z-index: 2;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.75);
 }
 
 .about-focus p {
   margin: 0;
   flex: 1 1 12rem;
   min-width: 0;
-  color: rgba(200, 208, 198, 0.88);
+  color: rgba(242, 242, 240, 0.9);
   font-size: var(--text-small);
   line-height: 1.55;
   letter-spacing: -0.01em;
@@ -780,6 +784,67 @@ a {
   padding-block: 36px 24px;
 }
 
+.stack {
+  padding-block: 36px 28px;
+}
+
+.stack-groups {
+  display: grid;
+  gap: 22px;
+}
+
+.stack-group-title {
+  margin: 0 0 10px;
+  color: var(--quiet);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.58rem;
+  font-weight: 550;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stack-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stack-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 11px 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(242, 242, 240, 0.88);
+  font-size: 0.78rem;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+}
+
+.tech-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.tech-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .contact-inner {
   display: flex;
   align-items: center;
@@ -891,14 +956,18 @@ a {
 
 @keyframes status-ping {
   0% {
-    transform: scale(0.7);
-    opacity: 0.7;
+    transform: scale(0.65);
+    opacity: 0.85;
   }
   70%,
   100% {
-    transform: scale(1.85);
+    transform: scale(1.95);
     opacity: 0;
   }
+}
+
+@keyframes status-radar-spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes spin-slow {
@@ -985,7 +1054,7 @@ a {
 .tip-lead {
   max-width: 26rem;
   margin: 14px 0 0;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.92rem;
   line-height: 1.7;
 }
@@ -1183,6 +1252,12 @@ a {
   .contact-cta:hover {
     background: #e2efcb;
     transform: scale(1.03);
+  }
+
+  .stack-chip:hover {
+    border-color: var(--line-strong);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .spotlight-card:hover::before {
@@ -1385,7 +1460,7 @@ a {
   }
 
   .status-pulse-ring,
-  .about-focus-pulse-ring,
+  .status-radar-sweep,
   .primary-action-spin,
   .tip-frame {
     animation: none;
@@ -1406,9 +1481,9 @@ a {
     transform: scale(1.35);
   }
 
-  .about-focus-pulse-ring {
-    opacity: 0.35;
-    transform: scale(1.35);
+  .status-radar-sweep {
+    opacity: 0.45;
+    transform: none;
   }
 }
 
