@@ -3,11 +3,15 @@ import { profile } from '~/data/profile'
 
 useSeoMeta({
   title: `${profile.name} — ${profile.role}`,
-  description: profile.intro,
+  description: profile.bio[0] || profile.intro,
   ogTitle: `${profile.name} — ${profile.role}`,
-  ogDescription: profile.intro,
+  ogDescription: profile.bio[0] || profile.intro,
   ogType: 'website',
-  twitterCard: 'summary_large_image'
+  ogImage: '/og-image.png',
+  twitterCard: 'summary_large_image',
+  twitterTitle: `${profile.name} — ${profile.role}`,
+  twitterDescription: profile.bio[0] || profile.intro,
+  twitterImage: '/og-image.png'
 })
 
 const currentYear = new Date().getFullYear()
