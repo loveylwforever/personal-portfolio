@@ -266,124 +266,139 @@ a {
 }
 
 .status-pill {
+  --status-accent: #22c55e;
+  --status-accent-text: #34d399;
+  --status-accent-line: rgba(34, 197, 94, 0.22);
+  --status-accent-fill: rgba(10, 16, 14, 0.72);
+
   display: inline-flex;
   width: fit-content;
   align-items: center;
   gap: 10px;
   padding: 8px 14px 8px 12px;
-  border: 1px solid rgba(52, 211, 153, 0.18);
+  border: 1px solid var(--status-accent-line);
   border-radius: 999px;
-  background: rgba(10, 16, 14, 0.72);
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04);
-  backdrop-filter: var(--glass);
-  -webkit-backdrop-filter: var(--glass);
-  color: var(--green);
+  background: var(--status-accent-fill);
+  color: var(--status-accent-text);
   font-size: 0.78rem;
   font-weight: 550;
   letter-spacing: -0.01em;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
 }
 
-/* Shared shell for pulse / radar / coop indicators */
+/* 现在 — warm amber, “in progress” */
+.about-focus-label {
+  --status-accent: #e8c47c;
+  --status-accent-text: #e8c47c;
+  --status-accent-line: rgba(232, 196, 124, 0.24);
+  --status-accent-fill: rgba(232, 196, 124, 0.1);
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* 欢迎合作 — soft sky, “open to connect” */
+.contact-kicker {
+  --status-accent: #7db8e8;
+  --status-accent-text: #8fc0e8;
+  --status-accent-line: rgba(125, 184, 232, 0.24);
+  --status-accent-fill: rgba(125, 184, 232, 0.1);
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Quiet live indicators — accent from parent pill */
 .status-mark {
   position: relative;
   display: grid;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+/* Hero available — larger classic pulse */
+.status-pulse {
   width: 16px;
   height: 16px;
-  flex: 0 0 auto;
   overflow: hidden;
-  place-items: center;
   border-radius: 50%;
 }
 
-.status-radar,
 .status-coop {
-  background: rgba(34, 197, 94, 0.08);
+  width: 14px;
 }
 
-.status-pulse-core {
+.status-dot {
   position: relative;
   z-index: 1;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+  background: var(--status-accent, #22c55e);
 }
 
-.status-pulse-ring {
-  position: absolute;
+.status-pulse .status-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.75);
+}
+
+/* Available — solid ping ring */
+.status-pulse .status-dot-ring {
   inset: 1px;
-  border-radius: 50%;
+  border: 0;
   background: rgba(34, 197, 94, 0.7);
+  opacity: 1;
   animation: status-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-.status-radar-sweep {
+/* Now — soft breath ring */
+.status-radar .status-dot-ring {
   position: absolute;
-  inset: 0;
+  inset: -3px;
   border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(34, 197, 94, 0.55) 0deg,
-    rgba(34, 197, 94, 0.18) 55deg,
-    transparent 110deg,
-    transparent 360deg
-  );
-  animation: status-radar-spin 2.2s linear infinite;
+  border: 1px solid color-mix(in srgb, var(--status-accent, #e8c47c) 55%, transparent);
+  background: transparent;
+  opacity: 0;
+  animation: status-breath 2.4s var(--ease-out) infinite;
 }
 
-.status-radar-ring {
+.status-dot-ring {
   position: absolute;
-  inset: 2px;
-  z-index: 1;
-  border: 1px solid rgba(34, 197, 94, 0.45);
+  inset: -3px;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.12);
+  pointer-events: none;
 }
 
-.status-radar-core {
-  position: relative;
-  z-index: 2;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.75);
-}
-
-/* Two nodes converge — cooperation */
+/* Collaboration — two dots lightly touch, then ease apart */
 .status-coop-a,
 .status-coop-b {
   position: absolute;
   top: 50%;
-  z-index: 2;
   width: 4px;
   height: 4px;
   margin-top: -2px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 5px rgba(34, 197, 94, 0.55);
+  background: var(--status-accent, #7db8e8);
 }
 
 .status-coop-a {
-  left: 1px;
-  animation: status-coop-a 2.2s ease-in-out infinite;
+  left: 0;
+  animation: status-meet-a 2.6s ease-in-out infinite;
 }
 
 .status-coop-b {
-  right: 1px;
-  animation: status-coop-b 2.2s ease-in-out infinite;
-}
-
-.status-coop-core {
-  position: relative;
-  z-index: 1;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #22c55e;
-  opacity: 0.3;
-  animation: status-coop-flash 2.2s ease-in-out infinite;
+  right: 0;
+  animation: status-meet-b 2.6s ease-in-out infinite;
 }
 
 .hero h1 {
@@ -556,40 +571,19 @@ a {
   gap: 10px;
 }
 
-.spotlight-card {
-  --spot-x: 50%;
-  --spot-y: 0%;
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.spotlight-card::before {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: radial-gradient(
-    220px circle at var(--spot-x) var(--spot-y),
-    rgba(255, 255, 255, 0.12),
-    transparent 55%
-  );
-  opacity: 0;
-  content: "";
-  pointer-events: none;
-  transition: opacity 180ms ease;
-}
-
 .about-card,
 .experience-item,
 .contact-inner,
 .about-focus {
   border: 1px solid var(--line);
   background: var(--surface);
-  box-shadow:
-    inset 0 1px rgba(255, 255, 255, 0.05),
-    0 12px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   backdrop-filter: var(--glass);
   -webkit-backdrop-filter: var(--glass);
+  transition:
+    transform 200ms var(--ease-out),
+    border-color 180ms ease,
+    box-shadow 200ms var(--ease-out);
 }
 
 .about-card {
@@ -602,18 +596,14 @@ a {
 }
 
 .about-card-label {
-  position: relative;
-  z-index: 1;
   color: var(--quiet);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.56rem;
-  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .about-card p {
-  position: relative;
-  z-index: 1;
   margin: 0;
   color: var(--text);
   font-size: 0.88rem;
@@ -897,7 +887,6 @@ a {
 
 .contact-inner > * {
   position: relative;
-  z-index: 1;
 }
 
 .contact-copy {
@@ -1050,36 +1039,30 @@ a {
   }
 }
 
-@keyframes status-radar-spin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes status-coop-a {
-  0%,
-  100% { transform: translateX(0); opacity: 0.75; }
-  45%,
-  55% { transform: translateX(4px); opacity: 1; }
-}
-
-@keyframes status-coop-b {
-  0%,
-  100% { transform: translateX(0); opacity: 0.75; }
-  45%,
-  55% { transform: translateX(-4px); opacity: 1; }
-}
-
-@keyframes status-coop-flash {
-  0%,
+@keyframes status-breath {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.5;
+  }
+  70%,
   100% {
-    opacity: 0.25;
-    transform: scale(0.75);
-    box-shadow: none;
+    transform: scale(1.55);
+    opacity: 0;
   }
-  50% {
-    opacity: 1;
-    transform: scale(1.35);
-    box-shadow: 0 0 7px rgba(34, 197, 94, 0.8);
-  }
+}
+
+@keyframes status-meet-a {
+  0%,
+  100% { transform: translateX(0); opacity: 0.7; }
+  45%,
+  55% { transform: translateX(3px); opacity: 1; }
+}
+
+@keyframes status-meet-b {
+  0%,
+  100% { transform: translateX(0); opacity: 0.7; }
+  45%,
+  55% { transform: translateX(-3px); opacity: 1; }
 }
 
 @keyframes glowing-pulse {
@@ -1404,8 +1387,12 @@ a {
     background: rgba(255, 255, 255, 0.04);
   }
 
-  .spotlight-card:hover::before {
-    opacity: 1;
+  .about-card:hover,
+  .contact-inner:hover,
+  .about-focus:hover {
+    transform: translateY(-2px);
+    border-color: var(--line-strong);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
   }
 
   .experience-item:hover {
@@ -1445,7 +1432,6 @@ a {
   }
 
   .pill-nav,
-  .status-pill,
   .about-card,
   .about-focus,
   .experience-item,
@@ -1668,15 +1654,28 @@ a {
     scroll-behavior: auto;
   }
 
+  .about-card,
+  .contact-inner,
+  .about-focus,
+  .experience-item {
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .about-card:hover,
+  .contact-inner:hover,
+  .about-focus:hover {
+    transform: none;
+  }
+
   .reveal {
     animation: fade-in 180ms ease both;
   }
 
-  .status-pulse-ring,
-  .status-radar-sweep,
+  .status-pulse .status-dot,
+  .status-pulse .status-dot-ring,
+  .status-radar .status-dot-ring,
   .status-coop-a,
   .status-coop-b,
-  .status-coop-core,
   .primary-action,
   .tip-frame {
     animation: none;
@@ -1702,29 +1701,24 @@ a {
     transition: none;
   }
 
-  .status-pulse-ring {
+  .status-pulse .status-dot-ring {
     opacity: 0.35;
     transform: scale(1.35);
   }
 
-  .status-radar-sweep {
-    opacity: 0.45;
-    transform: none;
+  .status-radar .status-dot-ring {
+    opacity: 0.35;
+    transform: scale(1.2);
   }
 
   .status-coop-a {
-    transform: translateX(3px);
+    transform: translateX(2px);
     opacity: 0.9;
   }
 
   .status-coop-b {
-    transform: translateX(-3px);
+    transform: translateX(-2px);
     opacity: 0.9;
-  }
-
-  .status-coop-core {
-    opacity: 0.7;
-    transform: scale(1);
   }
 }
 
@@ -1734,11 +1728,14 @@ a {
   .about-focus,
   .experience-item,
   .contact-inner,
-  .status-pill,
   .tip-frame,
   .tip-back {
     background: #161618;
     backdrop-filter: none;
+  }
+
+  .status-pill {
+    background: var(--status-accent-fill);
   }
 }
 
