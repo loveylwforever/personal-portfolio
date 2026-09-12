@@ -4,20 +4,28 @@ let cleanup: (() => void) | undefined
 
 onMounted(() => {
   const element = canvas.value
-  const context = element?.getContext('2d', { alpha: true, desynchronized: true })
-  if (!element || !context) return
+  if (!element) return
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-
-  const GAP = 24
+  const saveData = Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData)
+  const smallScreen = Math.min(window.innerWidth, window.innerHeight) < 720
+  // Sparse grid / lower DPR on constrained devices.
+  const GAP = saveData ? 36 : smallScreen ? 30 : 24
+  const DPR_CAP = saveData || smallScreen ? 1 : 1.25
   const REST_R = 1.05
-  const PEAK_R = 3.6
-  const INFLUENCE = 160
-  const LIFT = 20
-  const PUSH = 8
-  const SETTLE = 0.2
-  const TRAIL = 4
+  const PEAK_R = smallScreen ? 3.1 : 3.6
+  const INFLUENCE = smallScreen ? 130 : 160
+  const LIFT = 18
+  const PUSH = 7
+  const SETTLE = 0.22
+  const TRAIL = 3
+
+  // Static field only — skip interaction work on touch / reduced-motion / save-data.
+  const interactive = finePointer && !reduceMotion && !saveData
+
+  const context = element.getContext('2d', { alpha: true, desynchronized: true })
+  if (!context) return
 
   let width = 0
   let height = 0
@@ -35,20 +43,22 @@ onMounted(() => {
   let kept: number[] = []
   let originX = 0
   let originY = 0
-  let boxes: { l: number, t: number, r: number, b: number }[] = []
+  let boxes: { l: number, t: number, r: number, b: number, soft: boolean }[] = []
   let overContent = 0
   let staticLayer: HTMLCanvasElement | null = null
   let staticCtx: CanvasRenderingContext2D | null = null
   let staticDirty = true
   let scrollTimer = 0
+  let resizeTimer = 0
 
-  const addRect = (rect: DOMRect, pad: number) => {
+  const addRect = (rect: DOMRect, pad: number, soft = true) => {
     if (rect.width < 2 || rect.height < 2) return
     boxes.push({
       l: rect.left - pad,
       t: rect.top - pad,
       r: rect.right + pad,
-      b: rect.bottom + pad
+      b: rect.bottom + pad,
+      soft
     })
   }
 
@@ -60,6 +70,35 @@ onMounted(() => {
     return false
   }
 
+  const rebuildCoverMap = () => {
+    if (coverMap.length !== count) coverMap = new Float32Array(count)
+    else coverMap.fill(0)
+
+    // Box → dots (spatial) instead of dots → all boxes.
+    for (let b = 0; b < boxes.length; b++) {
+      const box = boxes[b]
+      const edge = box.soft ? 22 : 14
+      const softScale = box.soft ? 0.62 : 1
+      const minC = Math.max(0, Math.floor((box.l - originX) / GAP) - 1)
+      const maxC = Math.min(cols - 1, Math.ceil((box.r - originX) / GAP) + 1)
+      const minR = Math.max(0, Math.floor((box.t - originY) / GAP) - 1)
+      const maxR = Math.min(rows - 1, Math.ceil((box.b - originY) / GAP) + 1)
+
+      for (let row = minR; row <= maxR; row++) {
+        for (let col = minC; col <= maxC; col++) {
+          const i = row * cols + col
+          const x = restX[i]
+          const y = restY[i]
+          if (x < box.l || x > box.r || y < box.t || y > box.b) continue
+          const inset = Math.min(x - box.l, box.r - x, y - box.t, box.b - y)
+          const cover = (inset >= edge ? 1 : inset / edge) * softScale
+          if (cover > coverMap[i]) coverMap[i] = cover
+        }
+      }
+    }
+    staticDirty = true
+  }
+
   const collectBoxes = () => {
     boxes = []
     const nodes = document.querySelectorAll('[data-read-safe]')
@@ -67,35 +106,30 @@ onMounted(() => {
       const node = nodes[n]
       const mode = node.getAttribute('data-read-safe')
       if (mode === 'block') {
-        addRect(node.getBoundingClientRect(), 16)
+        addRect(node.getBoundingClientRect(), 10, false)
         continue
       }
-      const leaves = node.querySelectorAll('h1, h2, h3, p')
+      const leaves = node.querySelectorAll('h1, h2, h3, p, .stack-chip, .section-label')
       let found = false
       for (let i = 0; i < leaves.length; i++) {
         const leaf = leaves[i]
         if (leaf.closest('[data-read-safe]') !== node) continue
-        addRect(leaf.getBoundingClientRect(), 16)
+        addRect(leaf.getBoundingClientRect(), 6, true)
         found = true
       }
-      if (!found) addRect(node.getBoundingClientRect(), 14)
-    }
-
-    if (coverMap.length !== count) coverMap = new Float32Array(count)
-    for (let i = 0; i < count; i++) {
-      const x = restX[i]
-      const y = restY[i]
-      let max = 0
-      for (let b = 0; b < boxes.length; b++) {
-        const box = boxes[b]
-        if (x < box.l || x > box.r || y < box.t || y > box.b) continue
-        const inset = Math.min(x - box.l, box.r - x, y - box.t, box.b - y)
-        const cover = inset >= 18 ? 1 : inset / 18
-        if (cover > max) max = cover
+      if (!found) {
+        const textLeaves = node.querySelectorAll('span')
+        for (let i = 0; i < textLeaves.length; i++) {
+          const leaf = textLeaves[i]
+          if (leaf.closest('[data-read-safe]') !== node) continue
+          if (leaf.parentElement?.closest('.stack-chip, .status-pill, .contact-cta')) continue
+          addRect(leaf.getBoundingClientRect(), 6, true)
+          found = true
+        }
       }
-      coverMap[i] = max
+      if (!found) addRect(node.getBoundingClientRect(), 8, true)
     }
-    staticDirty = true
+    rebuildCoverMap()
   }
 
   const ensureStatic = () => {
@@ -117,43 +151,23 @@ onMounted(() => {
     const ratio = element.width / width || 1
     staticCtx.setTransform(ratio, 0, 0, ratio, 0, 0)
     staticCtx.clearRect(0, 0, width, height)
-    staticCtx.fillStyle = 'rgba(176, 176, 172, 0.15)'
-    for (let i = 0; i < count; i++) {
-      const cover = coverMap[i]
-      if (cover > 0.55) continue
-      if (cover > 0.02) {
-        staticCtx.fillStyle = `rgba(176, 176, 172, ${0.15 * (1 - cover * 0.85)})`
-        staticCtx.fillRect(restX[i] - REST_R, restY[i] - REST_R, REST_R * 2, REST_R * 2)
-        staticCtx.fillStyle = 'rgba(176, 176, 172, 0.15)'
-      } else {
+
+    // Bucket similar alphas to cut fillStyle churn.
+    const buckets = [0.15, 0.11, 0.07, 0.04]
+    for (let b = 0; b < buckets.length; b++) {
+      const target = buckets[b]
+      const lo = b === buckets.length - 1 ? 0.02 : (buckets[b + 1] + target) / 2
+      const hi = b === 0 ? 1 : (buckets[b - 1] + target) / 2
+      staticCtx.fillStyle = `rgba(176, 176, 172, ${target})`
+      for (let i = 0; i < count; i++) {
+        const cover = coverMap[i]
+        if (cover > 0.92) continue
+        const alpha = 0.15 * (1 - cover * 0.78)
+        if (alpha < lo || alpha >= hi) continue
         staticCtx.fillRect(restX[i] - REST_R, restY[i] - REST_R, REST_R * 2, REST_R * 2)
       }
     }
     staticDirty = false
-  }
-
-  const punchReadSafe = () => {
-    if (!boxes.length) return
-    context.save()
-    context.globalCompositeOperation = 'destination-out'
-    for (let i = 0; i < boxes.length; i++) {
-      const box = boxes[i]
-      const x = box.l
-      const y = box.t
-      const w = box.r - box.l
-      const h = box.b - box.t
-      context.beginPath()
-      const r = Math.min(8, w / 2, h / 2)
-      context.moveTo(x + r, y)
-      context.arcTo(x + w, y, x + w, y + h, r)
-      context.arcTo(x + w, y + h, x, y + h, r)
-      context.arcTo(x, y + h, x, y, r)
-      context.arcTo(x, y, x + w, y, r)
-      context.closePath()
-      context.fillStyle = '#000'
-      context.fill()
-    }
-    context.restore()
   }
 
   let pointerX = -9999
@@ -173,7 +187,7 @@ onMounted(() => {
   let needsPaint = true
 
   const rebuild = () => {
-    const ratio = Math.min(window.devicePixelRatio || 1, 1.25)
+    const ratio = Math.min(window.devicePixelRatio || 1, DPR_CAP)
     width = window.innerWidth
     height = window.innerHeight
     element.width = Math.floor(width * ratio)
@@ -243,14 +257,20 @@ onMounted(() => {
     last = now
     time += dt * 0.001
 
-    if (finePointer && !reduceMotion) {
+    if (interactive) {
       smoothX += (pointerX - smoothX) * 0.22
       smoothY += (pointerY - smoothY) * 0.22
-      trailX[0] += (smoothX - trailX[0]) * 0.28
-      trailY[0] += (smoothY - trailY[0]) * 0.28
+      const headX = trailX[0] ?? smoothX
+      const headY = trailY[0] ?? smoothY
+      trailX[0] = headX + (smoothX - headX) * 0.28
+      trailY[0] = headY + (smoothY - headY) * 0.28
       for (let t = 1; t < TRAIL; t++) {
-        trailX[t] += (trailX[t - 1] - trailX[t]) * (0.18 - t * 0.012)
-        trailY[t] += (trailY[t - 1] - trailY[t]) * (0.18 - t * 0.012)
+        const prevX = trailX[t - 1] ?? smoothX
+        const prevY = trailY[t - 1] ?? smoothY
+        const curX = trailX[t] ?? prevX
+        const curY = trailY[t] ?? prevY
+        trailX[t] = curX + (prevX - curX) * (0.18 - t * 0.012)
+        trailY[t] = curY + (prevY - curY) * (0.18 - t * 0.012)
       }
       overContent += ((pointerInContent(pointerX, pointerY) ? 1 : 0) - overContent) * 0.22
     }
@@ -260,55 +280,75 @@ onMounted(() => {
     context.clearRect(0, 0, width, height)
     if (staticLayer) context.drawImage(staticLayer, 0, 0, width, height)
 
-    if (reduceMotion || !finePointer) {
-      punchReadSafe()
+    if (!interactive) {
+      needsPaint = false
       return
     }
 
-    for (let i = 0; i < active.length; i++) flags[active[i]] = 0
+    for (let i = 0; i < active.length; i++) {
+      const idx = active[i]
+      if (idx == null) continue
+      flags[idx] = 0
+    }
     const prev = active
     active = kept
     active.length = 0
     kept = prev
 
     mark(smoothX, smoothY, INFLUENCE)
-    for (let t = 0; t < TRAIL; t++) mark(trailX[t], trailY[t], INFLUENCE - t * 12)
+    for (let t = 0; t < TRAIL; t++) {
+      mark(trailX[t] ?? -9999, trailY[t] ?? -9999, INFLUENCE - t * 12)
+    }
     for (let i = 0; i < prev.length; i++) {
       const idx = prev[i]
-      if (!flags[idx]) {
-        flags[idx] = 1
-        active.push(idx)
-      }
+      if (idx == null || flags[idx]) continue
+      flags[idx] = 1
+      active.push(idx)
     }
 
     let stillMoving = false
     kept.length = 0
     for (let n = 0; n < active.length; n++) {
       const i = active[n]
-      const x0 = restX[i]
-      const y0 = restY[i]
-      const cover = coverMap[i]
+      if (i == null) continue
+      const x0 = restX[i] ?? 0
+      const y0 = restY[i] ?? 0
+      const cover = coverMap[i] ?? 0
       let energy = fieldAt(x0, y0, smoothX, smoothY, INFLUENCE, 1)
       for (let t = 0; t < TRAIL; t++) {
-        energy += fieldAt(x0, y0, trailX[t], trailY[t], INFLUENCE - t * 10, 0.4 - t * 0.06)
+        energy += fieldAt(
+          x0,
+          y0,
+          trailX[t] ?? -9999,
+          trailY[t] ?? -9999,
+          INFLUENCE - t * 10,
+          0.4 - t * 0.06
+        )
       }
       energy = Math.min(1, energy) * (1 - cover * 0.98) * (1 - overContent * 0.42)
+
+      const px = posX[i] ?? x0
+      const py = posY[i] ?? y0
+      const lf = lift[i] ?? 0
 
       if (energy > 0.02) {
         const dx = x0 - smoothX
         const dy = y0 - smoothY
         const dist = Math.sqrt(dx * dx + dy * dy) || 1
         const peak = energy * energy * (1 + 0.14 * Math.sin(time * 5.2 - dist * 0.046))
-        posX[i] += (x0 + (dx / dist) * PUSH * peak - posX[i]) * 0.26
-        posY[i] += (y0 + (dy / dist) * PUSH * peak * 0.28 - LIFT * peak - posY[i]) * 0.26
-        lift[i] += (peak - lift[i]) * 0.28
+        posX[i] = px + (x0 + (dx / dist) * PUSH * peak - px) * 0.26
+        posY[i] = py + (y0 + (dy / dist) * PUSH * peak * 0.28 - LIFT * peak - py) * 0.26
+        lift[i] = lf + (peak - lf) * 0.28
         stillMoving = true
         kept.push(i)
       } else {
-        posX[i] += (x0 - posX[i]) * SETTLE
-        posY[i] += (y0 - posY[i]) * SETTLE
-        lift[i] *= 1 - SETTLE
-        if (Math.abs(posX[i] - x0) > 0.2 || Math.abs(posY[i] - y0) > 0.2 || lift[i] > 0.02) {
+        const nextX = px + (x0 - px) * SETTLE
+        const nextY = py + (y0 - py) * SETTLE
+        const nextLift = lf * (1 - SETTLE)
+        posX[i] = nextX
+        posY[i] = nextY
+        lift[i] = nextLift
+        if (Math.abs(nextX - x0) > 0.2 || Math.abs(nextY - y0) > 0.2 || nextLift > 0.02) {
           stillMoving = true
           kept.push(i)
         } else {
@@ -319,22 +359,22 @@ onMounted(() => {
         }
       }
 
-      const k = Math.min(1, lift[i])
+      const k = Math.min(1, lift[i] ?? 0)
       if (cover > 0.55 || k < 0.02) continue
 
       const radius = REST_R + (PEAK_R - REST_R) * k * (1 - cover * 0.75)
       const a = (0.16 + 0.62 * k) * (1 - cover * 0.9)
-      context.beginPath()
-      context.arc(posX[i], posY[i], radius, 0, Math.PI * 2)
+      const size = radius * 2
+      const drawX = posX[i] ?? x0
+      const drawY = posY[i] ?? y0
       context.fillStyle = `rgba(${(176 + 38 * k) | 0}, ${(176 + 56 * k) | 0}, ${(172 + 12 * k) | 0}, ${a})`
-      context.fill()
+      context.fillRect(drawX - radius, drawY - radius, size, size)
     }
 
     const swap = active
     active = kept
     kept = swap
 
-    punchReadSafe()
     needsPaint = stillMoving || Math.hypot(pointerX - smoothX, pointerY - smoothY) > 0.4 || overContent > 0.01
   }
 
@@ -344,7 +384,7 @@ onMounted(() => {
       return
     }
     paint(now)
-    if (needsPaint && !reduceMotion) frame = requestAnimationFrame(loop)
+    if (needsPaint && interactive) frame = requestAnimationFrame(loop)
     else frame = 0
   }
 
@@ -355,7 +395,7 @@ onMounted(() => {
   }
 
   const onPointerMove = (event: PointerEvent) => {
-    if (!finePointer) return
+    if (!interactive) return
     pointerX = event.clientX
     pointerY = event.clientY
     if (smoothX < -500) {
@@ -369,6 +409,7 @@ onMounted(() => {
   }
 
   const onPointerLeave = () => {
+    if (!interactive) return
     pointerX = -9999
     pointerY = -9999
     needsPaint = true
@@ -392,18 +433,44 @@ onMounted(() => {
       collectBoxes()
       needsPaint = true
       start()
-    }, 60)
+    }, 80)
   }
 
-  rebuild()
-  running = true
-  paint(performance.now())
-  window.addEventListener('resize', rebuild, { passive: true })
-  window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('pointermove', onPointerMove, { passive: true })
-  document.addEventListener('pointerleave', onPointerLeave)
-  document.addEventListener('visibilitychange', onVisibility)
+  const onResize = () => {
+    window.clearTimeout(resizeTimer)
+    resizeTimer = window.setTimeout(() => {
+      rebuild()
+      start()
+    }, 120)
+  }
+
+  const boot = () => {
+    rebuild()
+    running = true
+    paint(performance.now())
+    window.addEventListener('resize', onResize, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    if (interactive) {
+      window.addEventListener('pointermove', onPointerMove, { passive: true })
+      document.addEventListener('pointerleave', onPointerLeave)
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+  }
+
+  // Defer heavy grid build until the browser is idle so LCP stays free.
+  let idleHandle: number | null = null
+  const bootLater = () => {
+    idleHandle = null
+    boot()
+  }
+  if (typeof window.requestIdleCallback === 'function') {
+    idleHandle = window.requestIdleCallback(bootLater, { timeout: 500 })
+  } else {
+    idleHandle = window.setTimeout(bootLater, 1) as unknown as number
+  }
+
   const fontsReady = document.fonts?.ready.then(() => {
+    if (!running) return
     collectBoxes()
     needsPaint = true
     start()
@@ -413,8 +480,16 @@ onMounted(() => {
     running = false
     cancelAnimationFrame(frame)
     window.clearTimeout(scrollTimer)
-    window.removeEventListener('resize', rebuild)
-    window.removeEventListener('scroll', onScroll)
+    window.clearTimeout(resizeTimer)
+    if (idleHandle != null) {
+      if (typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleHandle)
+      }
+      window.clearTimeout(idleHandle)
+      idleHandle = null
+    }
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('scroll', onScroll, true)
     window.removeEventListener('pointermove', onPointerMove)
     document.removeEventListener('pointerleave', onPointerLeave)
     document.removeEventListener('visibilitychange', onVisibility)

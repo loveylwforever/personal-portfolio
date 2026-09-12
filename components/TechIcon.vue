@@ -13,6 +13,7 @@ defineProps<{
       height="16"
       loading="lazy"
       decoding="async"
+      fetchpriority="low"
     >
   </span>
 </template>

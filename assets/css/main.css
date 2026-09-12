@@ -1441,6 +1441,23 @@ a {
   :root {
     --section-space: var(--section-space-sm);
     --nav-offset: 68px;
+    --glass: none;
+  }
+
+  .pill-nav,
+  .status-pill,
+  .about-card,
+  .about-focus,
+  .experience-item,
+  .contact-inner {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(16, 16, 18, 0.94);
+  }
+
+  .hero-glow {
+    filter: blur(64px);
+    opacity: 0.75;
   }
 
   .nav-wrap {

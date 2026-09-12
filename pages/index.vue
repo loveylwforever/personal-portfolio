@@ -28,7 +28,7 @@ const toggleExperience = (index: number) => {
 <template>
   <div id="top" class="site-shell">
     <ClientOnly>
-      <LazyAmbientField />
+      <LazyAmbientField hydrate-on-idle />
     </ClientOnly>
     <PillNav />
 

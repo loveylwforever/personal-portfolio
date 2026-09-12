@@ -14,7 +14,7 @@ useSeoMeta({
 <template>
   <div class="tip-shell">
     <ClientOnly>
-      <LazyAmbientField />
+      <LazyAmbientField hydrate-on-idle />
     </ClientOnly>
     <PillNav />
 

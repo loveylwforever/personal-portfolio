@@ -11,7 +11,7 @@ import { profile } from '~/data/profile'
         v-for="group in profile.stacks"
         :key="group.title"
         class="stack-group"
-        data-read-safe="block"
+        data-read-safe
       >
         <h2 class="stack-group-title">{{ group.title }}</h2>
         <ul class="stack-list">

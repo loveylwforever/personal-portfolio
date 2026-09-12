@@ -6,13 +6,20 @@ withDefaults(defineProps<{
 })
 
 const card = useTemplateRef<HTMLElement>('card')
+const interactive = ref(false)
 let frame = 0
 
+onMounted(() => {
+  interactive.value =
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+})
+
 const onMove = (event: PointerEvent) => {
+  if (!interactive.value) return
   const el = card.value
-  if (!el) return
+  if (!el || frame) return
   const { clientX, clientY } = event
-  if (frame) return
   frame = requestAnimationFrame(() => {
     frame = 0
     const box = el.getBoundingClientRect()

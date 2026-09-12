@@ -1,7 +1,15 @@
 export default defineNuxtConfig({
-  compatibilityDate: '2026-08-01',
+  compatibilityDate: '2026-09-01',
+
+  // Keep Nuxt 3-style root layout; Nuxt 4 defaults to app/.
+  srcDir: '.',
+  dir: {
+    app: 'app'
+  },
+
   devtools: { enabled: false },
   css: ['~/assets/css/main.css'],
+
   app: {
     head: {
       htmlAttrs: { lang: 'zh-CN' },
@@ -16,11 +24,40 @@ export default defineNuxtConfig({
       ]
     }
   },
+
+  // Portfolio pages are static content — prerender at build for CDN/edge HTML.
+  routeRules: {
+    '/': { prerender: true },
+    '/tip': { prerender: true },
+    '/stack/**': {
+      headers: { 'cache-control': 'public, max-age=31536000, immutable' }
+    },
+    '/tip/**': {
+      headers: { 'cache-control': 'public, max-age=31536000, immutable' }
+    },
+    '/favicon.svg': {
+      headers: { 'cache-control': 'public, max-age=86400' }
+    }
+  },
+
   nitro: {
     preset: 'vercel',
-    compressPublicAssets: true
+    compressPublicAssets: true,
+    prerender: {
+      crawlLinks: true,
+      routes: ['/', '/tip']
+    }
   },
+
   experimental: {
-    payloadExtraction: true
+    // Inline payload on first paint; extract for client navigations (Nuxt 5-leaning default).
+    payloadExtraction: 'client'
+  },
+
+  vite: {
+    build: {
+      // Modern browsers only — skip legacy modulepreload polyfill.
+      modulePreload: { polyfill: false }
+    }
   }
 })

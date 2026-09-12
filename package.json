@@ -2,6 +2,9 @@
   "name": "gaojian-portfolio",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^22.19.0 || ^24.11.0 || >=26.0.0"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -11,10 +14,11 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "nuxt": "^3.0.0"
+    "nuxt": "^4.5.2"
   },
   "devDependencies": {
-    "typescript": "latest",
-    "vue-tsc": "latest"
-  }
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.11"
+  },
+  "packageManager": "pnpm@11.21.0"
 }
