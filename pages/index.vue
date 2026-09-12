@@ -37,19 +37,23 @@ const toggleExperience = (index: number) => {
       <section class="hero section-shell" aria-labelledby="hero-title">
         <div class="hero-glow" aria-hidden="true" />
 
-        <div class="hero-copy" data-read-safe>
+        <div class="hero-copy">
           <div class="status-pill reveal reveal-1" data-read-safe="block">
             <StatusMark variant="pulse" />
             <span>{{ profile.status }}</span>
           </div>
 
-          <h1 id="hero-title" class="reveal reveal-2">
-            {{ profile.name }}
-          </h1>
+          <div class="hero-identity" data-read-safe="ink">
+            <h1 id="hero-title" class="reveal reveal-2">
+              {{ profile.name }}
+            </h1>
 
-          <p class="hero-role reveal reveal-2">{{ profile.role }}</p>
-          <p class="hero-intro reveal reveal-3">{{ profile.intro }}</p>
-          <p class="hero-intro-en reveal reveal-3">{{ profile.introEn }}</p>
+            <p class="hero-role reveal reveal-2">{{ profile.role }}</p>
+            <p class="hero-intro reveal reveal-3">
+              <span class="hero-intro-lead">{{ profile.introLead }}</span>，<span class="hero-intro-trail">{{ profile.introTrail }}</span>。
+            </p>
+            <p class="hero-intro-en reveal reveal-3">{{ profile.introEn }}</p>
+          </div>
 
           <div class="hero-socials reveal reveal-3" data-read-safe="block">
             <a
@@ -75,7 +79,7 @@ const toggleExperience = (index: number) => {
 
       <!-- About -->
       <section id="about" class="about section-shell content-section">
-        <div class="section-label" data-read-safe>关于作者</div>
+        <div class="section-label section-label--about" data-read-safe>关于作者</div>
 
         <div class="about-body">
           <div class="about-lead" data-read-safe>
@@ -89,14 +93,14 @@ const toggleExperience = (index: number) => {
           </div>
 
           <div class="about-highlights">
-            <SpotlightCard class="about-card" data-read-safe="block">
+            <div class="about-card" data-read-safe="block">
               <span class="about-card-label">目标</span>
               <p>{{ profile.goal }}</p>
-            </SpotlightCard>
-            <SpotlightCard class="about-card" data-read-safe="block">
+            </div>
+            <div class="about-card" data-read-safe="block">
               <span class="about-card-label">价值观</span>
               <p>{{ profile.values }}</p>
-            </SpotlightCard>
+            </div>
           </div>
 
           <div class="about-focus" data-read-safe="block">
@@ -117,9 +121,9 @@ const toggleExperience = (index: number) => {
 
       <!-- Contact -->
       <section id="contact" class="contact section-shell content-section">
-        <div class="section-label" data-read-safe>联系作者</div>
+        <div class="section-label section-label--contact" data-read-safe>联系作者</div>
 
-        <SpotlightCard class="contact-inner" data-read-safe="block">
+        <div class="contact-inner" data-read-safe="block">
           <div class="contact-copy">
             <span class="status-pill contact-kicker">
               <StatusMark variant="coop" />
@@ -134,7 +138,7 @@ const toggleExperience = (index: number) => {
               <AppIcon name="i-lucide-arrow-up-right" />
             </span>
           </a>
-        </SpotlightCard>
+        </div>
       </section>
 
       <StackSection />

@@ -4,7 +4,7 @@ import { profile } from '~/data/profile'
 
 <template>
   <section id="stack" class="stack section-shell content-section">
-    <div class="section-label" data-read-safe>技能图谱</div>
+    <div class="section-label section-label--stack" data-read-safe>技能图谱</div>
 
     <div class="stack-groups">
       <div
@@ -16,7 +16,7 @@ import { profile } from '~/data/profile'
         <h2 class="stack-group-title">{{ group.title }}</h2>
         <ul class="stack-list">
           <li v-for="item in group.items" :key="item.name">
-            <span class="stack-chip">
+            <span class="stack-chip" data-read-safe="block">
               <TechIcon :name="item.icon" />
               <span>{{ item.name }}</span>
             </span>

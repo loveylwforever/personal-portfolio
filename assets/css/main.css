@@ -265,6 +265,13 @@ a {
   align-items: center;
 }
 
+.hero-identity {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
 .status-pill {
   --status-accent: #22c55e;
   --status-accent-text: #34d399;
@@ -402,7 +409,7 @@ a {
 }
 
 .hero h1 {
-  margin: 16px 0 8px;
+  margin: 16px 0 12px;
   color: var(--text);
   font-size: var(--text-display);
   font-weight: 560;
@@ -411,8 +418,8 @@ a {
 }
 
 .hero-role {
-  margin: 0 0 16px;
-  color: var(--quiet);
+  margin: 0 0 12px;
+  color: #b8a8d4;
   font-size: var(--text-small);
   letter-spacing: 0.04em;
 }
@@ -421,7 +428,7 @@ a {
   width: 100%;
   max-width: min(520px, 100%);
   margin: 0;
-  color: var(--muted);
+  color: #d4a5a0;
   font-size: clamp(0.92rem, 2.8vw, 1.02rem);
   line-height: 1.7;
 }
@@ -539,6 +546,18 @@ a {
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-align: center;
+}
+
+.section-label--about {
+  color: #c5d4a8;
+}
+
+.section-label--contact {
+  color: #8fc0e8;
+}
+
+.section-label--stack {
+  color: #e8c47c;
 }
 
 .about-body {
@@ -883,10 +902,6 @@ a {
   gap: 12px 16px;
   padding: 10px 10px 10px 14px;
   border-radius: 14px;
-}
-
-.contact-inner > * {
-  position: relative;
 }
 
 .contact-copy {

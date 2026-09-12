@@ -9,11 +9,15 @@ export const profile = {
   name: '高健JamieGao',
   initials: 'GJ',
   role: '全栈开发工程师',
-  status: '接受新项目',
+  status: '欢迎来到我的主页，接受新项目，和我联系吧',
   email: '214142603@qq.com',
 
   // —— Hero ——
-  intro: '精研方案，深耕全栈。',
+  introLead: '精研方案',
+  introTrail: '深耕全栈',
+  get intro() {
+    return `${this.introLead}，${this.introTrail}。`
+  },
   introEn: 'Refine the plan. Cultivate the stack.',
 
   // —— About ——

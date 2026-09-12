@@ -19,8 +19,7 @@ const emit = defineEmits<{
         v-for="(item, index) in profile.experience"
         :key="item.company"
       >
-        <SpotlightCard
-          as="div"
+        <div
           class="experience-item"
           :class="{ current: item.current, open: openIndex === index }"
           data-read-safe="block"
@@ -65,7 +64,7 @@ const emit = defineEmits<{
               </ul>
             </div>
           </div>
-        </SpotlightCard>
+        </div>
       </li>
     </ol>
   </section>

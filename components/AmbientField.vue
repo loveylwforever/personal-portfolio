@@ -43,7 +43,7 @@ onMounted(() => {
   let kept: number[] = []
   let originX = 0
   let originY = 0
-  let boxes: { l: number, t: number, r: number, b: number, soft: boolean }[] = []
+  let boxes: { l: number, t: number, r: number, b: number, soft: boolean, ink: boolean }[] = []
   let overContent = 0
   let staticLayer: HTMLCanvasElement | null = null
   let staticCtx: CanvasRenderingContext2D | null = null
@@ -51,15 +51,98 @@ onMounted(() => {
   let scrollTimer = 0
   let resizeTimer = 0
 
-  const addRect = (rect: DOMRect, pad: number, soft = true) => {
-    if (rect.width < 2 || rect.height < 2) return
-    boxes.push({
-      l: rect.left - pad,
-      t: rect.top - pad,
-      r: rect.right + pad,
-      b: rect.bottom + pad,
-      soft
-    })
+  const addBox = (l: number, t: number, r: number, b: number, soft = true, ink = false) => {
+    if (r - l < 2 || b - t < 2) return
+    boxes.push({ l, t, r, b, soft, ink })
+  }
+
+  const addRect = (rect: DOMRectReadOnly, pad: number, soft = true, ink = false) => {
+    addBox(rect.left - pad, rect.top - pad, rect.right + pad, rect.bottom + pad, soft, ink)
+  }
+
+  /** Merge fragmented inline rects on the same line into one ink band. */
+  const mergeLineRects = (rects: DOMRectList | DOMRect[]) => {
+    const list: { l: number, t: number, r: number, b: number }[] = []
+    for (let i = 0; i < rects.length; i++) {
+      const rect = rects[i]
+      if (!rect || rect.width < 1 || rect.height < 1) continue
+      list.push({ l: rect.left, t: rect.top, r: rect.right, b: rect.bottom })
+    }
+    list.sort((a, b) => a.t - b.t || a.l - b.l)
+
+    const merged: { l: number, t: number, r: number, b: number }[] = []
+    for (let i = 0; i < list.length; i++) {
+      const cur = list[i]
+      const prev = merged[merged.length - 1]
+      if (
+        prev
+        && Math.abs(cur.t - prev.t) < 6
+        && Math.abs(cur.b - prev.b) < 10
+        && cur.l <= prev.r + 14
+      ) {
+        prev.l = Math.min(prev.l, cur.l)
+        prev.t = Math.min(prev.t, cur.t)
+        prev.r = Math.max(prev.r, cur.r)
+        prev.b = Math.max(prev.b, cur.b)
+      } else {
+        merged.push({ ...cur })
+      }
+    }
+    return merged
+  }
+
+  /**
+   * CJK fullwidth punctuation keeps a wide advance box with empty trail space
+   * (e.g. "。" ). Trim that hang so ink cover matches the visible mark.
+   */
+  const trailingPunctHang = (el: Element) => {
+    const text = (el.textContent || '').replace(/\s+$/u, '')
+    if (!/[。．！？；：，、…）》」』】〉]$/u.test(text)) return 0
+
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    let lastText: Text | null = null
+    while (walker.nextNode()) lastText = walker.currentNode as Text
+    if (!lastText?.data) return 0
+
+    const raw = lastText.data.replace(/\s+$/u, '')
+    if (!raw) return 0
+    const ch = raw[raw.length - 1]
+    const offset = lastText.data.lastIndexOf(ch)
+    if (offset < 0) return 0
+
+    try {
+      const range = document.createRange()
+      range.setStart(lastText, offset)
+      range.setEnd(lastText, offset + 1)
+      const rect = range.getBoundingClientRect()
+      if (rect.width < 1) return 0
+      // Keep the leading half of the punct cell (where the mark usually sits).
+      return rect.width * 0.5
+    } catch {
+      return 0
+    }
+  }
+
+  /** Prefer ink/line boxes over full block width (centered text often stretches). */
+  const addTextLeaf = (el: Element, padX: number, padY: number, soft = true, ink = false) => {
+    try {
+      const range = document.createRange()
+      range.selectNodeContents(el)
+      const bands = mergeLineRects(range.getClientRects())
+      if (bands.length) {
+        const hang = ink ? trailingPunctHang(el) : 0
+        for (let i = 0; i < bands.length; i++) {
+          const band = bands[i]
+          const isLast = i === bands.length - 1
+          const right = band.r - (isLast ? hang : 0)
+          addBox(band.l - padX, band.t - padY, right + padX, band.b + padY, soft, ink)
+        }
+        return
+      }
+    } catch {
+      // fall through to element box
+    }
+    addRect(el.getBoundingClientRect(), Math.max(padX, padY), soft, ink)
   }
 
   const pointerInContent = (x: number, y: number) => {
@@ -77,7 +160,13 @@ onMounted(() => {
     // Box → dots (spatial) instead of dots → all boxes.
     for (let b = 0; b < boxes.length; b++) {
       const box = boxes[b]
-      const edge = box.soft ? 22 : 14
+      const boxH = box.b - box.t
+      // Short text lines never reach full cover with a 14px edge — scale edge to height for ink.
+      const edge = box.ink
+        ? Math.max(2, Math.min(5, boxH * 0.22))
+        : box.soft
+          ? 22
+          : 14
       const softScale = box.soft ? 0.62 : 1
       const minC = Math.max(0, Math.floor((box.l - originX) / GAP) - 1)
       const maxC = Math.min(cols - 1, Math.ceil((box.r - originX) / GAP) + 1)
@@ -91,7 +180,9 @@ onMounted(() => {
           const y = restY[i]
           if (x < box.l || x > box.r || y < box.t || y > box.b) continue
           const inset = Math.min(x - box.l, box.r - x, y - box.t, box.b - y)
-          const cover = (inset >= edge ? 1 : inset / edge) * softScale
+          let cover = (inset >= edge ? 1 : inset / edge) * softScale
+          // Ink core: once inside the padded glyph band, force a clean punch.
+          if (box.ink && inset >= edge * 0.35) cover = 1
           if (cover > coverMap[i]) coverMap[i] = cover
         }
       }
@@ -106,15 +197,19 @@ onMounted(() => {
       const node = nodes[n]
       const mode = node.getAttribute('data-read-safe')
       if (mode === 'block') {
-        addRect(node.getBoundingClientRect(), 10, false)
+        const chip = node.classList.contains('stack-chip')
+        addRect(node.getBoundingClientRect(), chip ? 3 : 10, false, chip)
         continue
       }
-      const leaves = node.querySelectorAll('h1, h2, h3, p, .stack-chip, .section-label')
+
+      // ink: punch only behind glyphs — keep side gutters ambient
+      const ink = mode === 'ink'
+      const leaves = node.querySelectorAll('h1, h2, h3, p, .section-label')
       let found = false
       for (let i = 0; i < leaves.length; i++) {
         const leaf = leaves[i]
         if (leaf.closest('[data-read-safe]') !== node) continue
-        addRect(leaf.getBoundingClientRect(), 6, true)
+        addTextLeaf(leaf, ink ? 4 : 6, ink ? 7 : 6, !ink, ink)
         found = true
       }
       if (!found) {
@@ -123,11 +218,11 @@ onMounted(() => {
           const leaf = textLeaves[i]
           if (leaf.closest('[data-read-safe]') !== node) continue
           if (leaf.parentElement?.closest('.stack-chip, .status-pill, .contact-cta')) continue
-          addRect(leaf.getBoundingClientRect(), 6, true)
+          addTextLeaf(leaf, ink ? 4 : 6, ink ? 7 : 6, !ink, ink)
           found = true
         }
       }
-      if (!found) addRect(node.getBoundingClientRect(), 8, true)
+      if (!found) addRect(node.getBoundingClientRect(), 8, true, false)
     }
     rebuildCoverMap()
   }
