@@ -16,7 +16,7 @@ const openExperience = ref<number | null>(null)
 const primaryAction = computed(() =>
   profile.showExperience
     ? { href: '#experience', label: '工作经历' }
-    : { href: '#contact', label: '联系合作' }
+    : { href: '#contact', label: '联系作者' }
 )
 
 const toggleExperience = (index: number) => {

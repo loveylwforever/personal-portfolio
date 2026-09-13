@@ -9,7 +9,7 @@ export const profile = {
   name: '高健JamieGao',
   initials: 'GJ',
   role: '全栈开发工程师',
-  status: '欢迎来到我的主页，接受新项目，和我联系吧',
+  status: '欢迎来到我的主页',
   email: '214142603@qq.com',
 
   // —— Hero ——
@@ -25,13 +25,13 @@ export const profile = {
     '十余年金融科技与企业系统经验，深耕银行核心、支付结算、智能客服等复杂场景。',
     '独立承担方案、开发、部署与运维的全链路工作，能在完整项目周期内推进交付。'
   ],
-  goal: '将复杂问题拆解为清晰、稳定、可扩展的系统架构。',
+  goal: '将复杂问题拆解为稳定、可扩展的系统架构。',
   values: '先理解，再动手；重质量，重演进。',
   focus: '当前承接独立开发与系统优化项目，结合 AI 工程能力提升需求分析、开发联调与上线效率。',
 
   // —— Contact ——
-  contactLabel: '欢迎合作',
-  contactLine: '有合适的项目、想一起学习进步？随时邮件联系。',
+  contactLabel: '交流',
+  contactLine: '合适的项目或一起学习进步？随时邮件联系。',
 
   // —— Experience (hidden while showExperience is false) ——
   experience: [
