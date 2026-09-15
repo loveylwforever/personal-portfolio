@@ -142,6 +142,9 @@ const toggleExperience = (index: number) => {
       </section>
 
       <StackSection />
+      <ClientOnly>
+        <LazyContributionHeatmap />
+      </ClientOnly>
     </main>
 
     <footer class="section-shell footer" data-read-safe>

@@ -156,6 +156,9 @@ export const profile = {
     }
   ],
 
+  // —— GitHub (contribution heatmap) ——
+  githubUsername: 'loveylwforever',
+
   // —— Social ——
   social: [
     { label: 'GitHub', url: 'https://github.com/loveylwforever', icon: 'i-lucide-github' },

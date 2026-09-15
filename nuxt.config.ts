@@ -29,6 +29,9 @@ export default defineNuxtConfig({
   routeRules: {
     '/': { prerender: true },
     '/tip': { prerender: true },
+    '/api/github-contributions': {
+      headers: { 'cache-control': 'public, s-maxage=3600, stale-while-revalidate=86400' }
+    },
     '/stack/**': {
       headers: { 'cache-control': 'public, max-age=31536000, immutable' }
     },
@@ -38,6 +41,11 @@ export default defineNuxtConfig({
     '/favicon.svg': {
       headers: { 'cache-control': 'public, max-age=86400' }
     }
+  },
+
+  runtimeConfig: {
+    // Prefer NUXT_GITHUB_TOKEN; GITHUB_TOKEN also works via this mapping
+    githubToken: process.env.NUXT_GITHUB_TOKEN || process.env.GITHUB_TOKEN || ''
   },
 
   nitro: {
