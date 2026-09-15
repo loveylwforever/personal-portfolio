@@ -321,7 +321,8 @@ a {
   -webkit-backdrop-filter: none;
 }
 
-/* Quiet live indicators — accent from parent pill */
+/* Quiet live indicators — accent from parent pill.
+   All variants share a 10×10 slot so pill text lines up. */
 .status-mark {
   position: relative;
   display: grid;
@@ -337,10 +338,6 @@ a {
   height: 16px;
   overflow: hidden;
   border-radius: 50%;
-}
-
-.status-coop {
-  width: 14px;
 }
 
 .status-dot {
@@ -386,25 +383,25 @@ a {
   pointer-events: none;
 }
 
-/* Collaboration — two dots lightly touch, then ease apart */
+/* Collaboration — twin dots meet inside the same 10px slot as radar */
 .status-coop-a,
 .status-coop-b {
   position: absolute;
   top: 50%;
-  width: 4px;
-  height: 4px;
-  margin-top: -2px;
+  width: 3.5px;
+  height: 3.5px;
+  margin-top: -1.75px;
   border-radius: 50%;
   background: var(--status-accent, #7db8e8);
 }
 
 .status-coop-a {
-  left: 0;
+  left: 0.5px;
   animation: status-meet-a 2.6s ease-in-out infinite;
 }
 
 .status-coop-b {
-  right: 0;
+  right: 0.5px;
   animation: status-meet-b 2.6s ease-in-out infinite;
 }
 
@@ -1068,16 +1065,16 @@ a {
 
 @keyframes status-meet-a {
   0%,
-  100% { transform: translateX(0); opacity: 0.7; }
+  100% { transform: translateX(0); opacity: 0.65; }
   45%,
-  55% { transform: translateX(3px); opacity: 1; }
+  55% { transform: translateX(1.5px); opacity: 1; }
 }
 
 @keyframes status-meet-b {
   0%,
-  100% { transform: translateX(0); opacity: 0.7; }
+  100% { transform: translateX(0); opacity: 0.65; }
   45%,
-  55% { transform: translateX(-3px); opacity: 1; }
+  55% { transform: translateX(-1.5px); opacity: 1; }
 }
 
 @keyframes glowing-pulse {
@@ -1848,12 +1845,12 @@ a {
   }
 
   .status-coop-a {
-    transform: translateX(2px);
+    transform: translateX(1px);
     opacity: 0.9;
   }
 
   .status-coop-b {
-    transform: translateX(-2px);
+    transform: translateX(-1px);
     opacity: 0.9;
   }
 }

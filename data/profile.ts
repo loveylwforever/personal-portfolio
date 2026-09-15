@@ -31,7 +31,7 @@ export const profile = {
 
   // —— Contact ——
   contactLabel: '交流',
-  contactLine: '合适的项目或一起学习进步？随时邮件联系。',
+  contactLine: '新项目或想一起学习进步欢迎随时邮件联系我。',
 
   // —— Experience (hidden while showExperience is false) ——
   experience: [

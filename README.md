@@ -1,18 +1,21 @@
 # Gaojian Portfolio
 
-岩灰色 Apple 风格个人单页，使用 Nuxt 3、Nuxt Content v3、Nuxt UI v3 与 Tailwind CSS v4 构建。
+Nuxt 4 个人作品集。包管理用 **npm**（随 Node 自带，不依赖 Corepack / pnpm）。
 
 ## 本地开发
 
+需要 Node **24.x**（见 `.nvmrc`）：
+
 ```bash
+nvm use
 npm install
 npm run dev
 ```
 
 ## 修改内容
 
-个人资料、项目与社交链接都在 `content/profile.yml`。修改后无需调整页面组件。
+文案与资料在 `data/profile.ts`。
 
 ## 部署到 Vercel
 
-将仓库导入 Vercel，Framework Preset 选择 Nuxt.js，保留默认构建命令 `npm run build` 即可。
+导入仓库后选 Nuxt，默认 `npm run build` 即可。Vercel 会按 `package-lock.json` 使用 npm。

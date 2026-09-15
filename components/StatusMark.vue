@@ -13,7 +13,7 @@ withDefaults(defineProps<{
     :class="`status-${variant}`"
     aria-hidden="true"
   >
-    <!-- Collaboration: two nodes gently meet -->
+    <!-- Collaboration: twin dots meet inside the shared 10px slot -->
     <template v-if="variant === 'coop'">
       <span class="status-coop-a" />
       <span class="status-coop-b" />
