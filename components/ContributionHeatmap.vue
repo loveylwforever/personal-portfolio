@@ -13,7 +13,7 @@ type ContributionsPayload = {
   days: ContributionDay[]
 }
 
-const CELL = 11
+const CELL = 12
 const GAP = 3
 const STEP = CELL + GAP
 const DAYS = 7
@@ -93,7 +93,7 @@ const dayTitle = (day: ContributionDay) => {
       <div class="gh-heatmap-head">
         <p class="gh-heatmap-total">
           <template v-if="data">
-            过去一年 <strong>{{ data.total.toLocaleString('zh-CN') }}</strong> 次贡献
+            过去半年 <strong>{{ data.total.toLocaleString('zh-CN') }}</strong> 次贡献
           </template>
           <template v-else-if="status === 'pending'">
             正在同步 GitHub 贡献…
@@ -127,7 +127,7 @@ const dayTitle = (day: ContributionDay) => {
           :width="svgWidth"
           :height="svgHeight"
           role="img"
-          :aria-label="`GitHub 贡献热点图，过去一年 ${data?.total ?? 0} 次贡献`"
+          :aria-label="`GitHub 贡献热点图，过去半年 ${data?.total ?? 0} 次贡献`"
         >
           <g class="gh-month-labels" :transform="`translate(0, 10)`">
             <text

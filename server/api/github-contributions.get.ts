@@ -36,9 +36,9 @@ const LEVEL_MAP: Record<ContributionLevel, number> = {
 }
 
 const QUERY = `
-  query ($login: String!) {
+  query ($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
-      contributionsCollection {
+      contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           totalContributions
           weeks {
@@ -66,6 +66,10 @@ export default cachedEventHandler(async (event) => {
     })
   }
 
+  const to = new Date()
+  const from = new Date(to)
+  from.setMonth(from.getMonth() - 6)
+
   const payload = await $fetch<GhResponse>('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
@@ -75,7 +79,11 @@ export default cachedEventHandler(async (event) => {
     },
     body: {
       query: QUERY,
-      variables: { login: username }
+      variables: {
+        login: username,
+        from: from.toISOString(),
+        to: to.toISOString()
+      }
     }
   })
 
@@ -110,5 +118,5 @@ export default cachedEventHandler(async (event) => {
 }, {
   maxAge: 60 * 60,
   name: 'github-contributions',
-  getKey: () => profile.githubUsername
+  getKey: () => `${profile.githubUsername}:6m`
 })
