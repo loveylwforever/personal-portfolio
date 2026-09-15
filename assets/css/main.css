@@ -263,13 +263,279 @@ a {
   max-width: 640px;
   flex-direction: column;
   align-items: center;
+  overflow: visible;
 }
 
 .hero-identity {
+  position: relative;
+  z-index: 1;
   display: flex;
   width: 100%;
   flex-direction: column;
   align-items: center;
+}
+
+/* —— GAO: horizontal 3D art letters (~8° + trail extrusion) —— */
+.gao-blocks {
+  /* 5+1+5+1+5 — stay inside text column */
+  --gao-cols: 20;
+  --gao-unit: calc(100cqw / var(--gao-cols));
+  --gao-gap: max(2px, calc(var(--gao-unit) * 0.1));
+  --gao-s: calc(var(--gao-unit) - var(--gao-gap));
+  --gao-step: var(--gao-unit);
+
+  container-type: inline-size;
+  position: relative;
+  z-index: 4;
+  display: block;
+  width: 100%;
+  margin: 14px 0 6px;
+  overflow: visible;
+  perspective: 620px;
+  perspective-origin: 50% 50%;
+  user-select: none;
+}
+
+.gao-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gao-unit);
+  width: 100%;
+  /* Tight to letter height — avoid huge empty top from flex-end + tall box */
+  height: calc(var(--gao-step) * 7.45);
+  margin: 0 0 calc(var(--gao-s) * 0.85);
+  padding: 0;
+  overflow: visible;
+  isolation: isolate;
+  transform-style: flat;
+  transform: rotateX(8deg) rotateY(-12deg) skewX(-2.5deg);
+  transform-origin: 50% 48%;
+}
+
+/* Handwritten note — floats beside letters (chanhdai-style), not its own row */
+.gao-hint {
+  position: absolute;
+  left: calc(100% + 2px);
+  top: 22%;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  width: max-content;
+  max-width: 7.5rem;
+  margin: 0;
+  color: var(--quiet);
+  font-family: "Segoe Print", "Bradley Hand", "Apple Chancery", "PingFang SC", cursive;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  opacity: 0.72;
+  pointer-events: none;
+  user-select: none;
+}
+
+.gao-hint-arrow {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  /* Default arrow points down-left; flip so tip aims left at the letters */
+  transform: scaleY(-1) rotate(-6deg);
+}
+
+.gao-hint-text {
+  margin-left: 0.2rem;
+  transform: rotate(-6deg);
+  transform-origin: left top;
+}
+
+.gao-letter {
+  --gao-stack: 1;
+  --gao-yaw: 0deg;
+  --c-trail: #0a0a0c;
+  --c-trail-mid: #141618;
+
+  position: relative;
+  z-index: var(--gao-stack);
+  width: calc(var(--gao-step) * 5);
+  height: calc(var(--gao-step) * 7);
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  /* Allow trails down + into letter gap; clip before next glyph face */
+  clip-path: inset(
+    calc(var(--gao-s) * -0.35)
+    calc(var(--gao-unit) * -0.72)
+    calc(var(--gao-s) * -2.2)
+    calc(var(--gao-s) * -0.35)
+  );
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transform: none;
+  transform-style: flat;
+  transition: transform 420ms cubic-bezier(0.22, 1.55, 0.36, 1);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  isolation: isolate;
+}
+
+.gao-letter-g {
+  --gao-stack: 1;
+  --gao-yaw: -2deg;
+  --c-top: #9af5d2;
+  --c-left: #065f46;
+  --c-right: #34d399;
+  --c-bottom: #022c22;
+  --c-trail: #14b8a6;
+  --c-trail-mid: #0f766e;
+}
+
+.gao-letter-a {
+  --gao-stack: 2;
+  --gao-yaw: 0deg;
+  --c-top: #ffe9b0;
+  --c-left: #92400e;
+  --c-right: #e8c47c;
+  --c-bottom: #451a03;
+  --c-trail: #d97706;
+  --c-trail-mid: #b45309;
+}
+
+.gao-letter-o {
+  --gao-stack: 3;
+  --gao-yaw: 2deg;
+  --c-top: #cceaff;
+  --c-left: #1e3a8a;
+  --c-right: #7db8e8;
+  --c-bottom: #0c1a3a;
+  --c-trail: #3b82f6;
+  --c-trail-mid: #2563eb;
+}
+
+.gao-letter:focus-visible {
+  outline: 2px solid rgba(214, 232, 184, 0.55);
+  outline-offset: 10px;
+}
+
+.gao-letter.is-pressed {
+  transform: translateY(3px) scale(0.94);
+  transition: transform 70ms cubic-bezier(0.3, 0, 1, 1);
+}
+
+/* Invisible full-letter hit pad (covers glyph holes) */
+.gao-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.gao-solid,
+.gao-trail {
+  pointer-events: none;
+}
+
+.gao-solid {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  transform: rotateY(var(--gao-yaw));
+  transform-style: preserve-3d;
+}
+
+/* Stacked silhouette 拖影 behind glyph */
+.gao-trail {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Fewer layers, more rightward spread (original feel) */
+  transform:
+    translate3d(
+      calc(var(--gao-s) * 0.34 * var(--trail)),
+      calc(var(--gao-s) * 0.24 * var(--trail)),
+      calc(var(--gao-s) * -0.14 * var(--trail))
+    );
+  opacity: calc(0.95 - (var(--trail) * 0.08));
+}
+
+.gao-trail-cell {
+  position: absolute;
+  left: calc(var(--vx) * var(--gao-step));
+  top: calc(var(--vy) * var(--gao-step));
+  width: var(--gao-s);
+  height: var(--gao-s);
+  background: color-mix(
+    in srgb,
+    var(--c-trail-mid) calc(100% - var(--trail) * 10%),
+    var(--c-trail)
+  );
+  box-shadow:
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.28),
+    0 0 0 0.5px rgba(0, 0, 0, 0.2);
+}
+
+.gao-voxel {
+  position: absolute;
+  left: calc(var(--vx) * var(--gao-step));
+  top: calc(var(--vy) * var(--gao-step));
+  width: var(--gao-s);
+  height: var(--gao-s);
+  transform-style: preserve-3d;
+}
+
+.gao-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+/* Front face */
+.gao-face-right {
+  transform: translateZ(calc(var(--gao-s) * 0.55));
+  background: var(--c-right);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+}
+
+/* Side extrusion — deeper so G/A also read in 3D */
+.gao-face-left {
+  width: calc(var(--gao-s) * 1.05);
+  transform: translateX(calc(var(--gao-s) * -0.52)) rotateY(-90deg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-left) 88%, #fff) 0%,
+    var(--c-left) 42%,
+    color-mix(in srgb, var(--c-left) 70%, #000) 100%
+  );
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.22);
+}
+
+/* Top bevel */
+.gao-face-top {
+  height: calc(var(--gao-s) * 1.05);
+  transform: translateY(calc(var(--gao-s) * -0.52)) rotateX(90deg);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c-top) 75%, #000) 0%,
+    var(--c-top) 45%,
+    color-mix(in srgb, var(--c-top) 90%, #fff) 100%
+  );
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+}
+
+/* Bottom lip — strengthens downward 拖影 read */
+.gao-face-bottom {
+  height: calc(var(--gao-s) * 1.05);
+  transform: translateY(calc(var(--gao-s) * 0.52)) rotateX(-90deg);
+  background: var(--c-bottom);
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.3);
 }
 
 .status-pill {
@@ -1702,6 +1968,37 @@ a {
     opacity: 0.75;
   }
 
+  .gao-blocks {
+    margin: 12px 0 4px;
+    perspective: 560px;
+  }
+
+  .gao-stage {
+    transform: rotateX(8deg) rotateY(-11deg) skewX(-2.5deg);
+    height: calc(var(--gao-step) * 7.2);
+    margin-bottom: calc(var(--gao-s) * 0.7);
+  }
+
+  /* Keep the note tucked into the letter area when gutter is tight */
+  .gao-hint {
+    left: auto;
+    right: -0.1rem;
+    top: auto;
+    bottom: 0.25rem;
+    max-width: 6.5rem;
+    font-size: 0.74rem;
+  }
+
+  .gao-hint-arrow {
+    width: 1.65rem;
+    height: 1.65rem;
+    transform: scaleY(-1) rotate(-14deg);
+  }
+
+  .gao-hint-text {
+    transform: rotate(-6deg);
+  }
+
   .nav-wrap {
     width: fit-content;
     max-width: calc(100% - 16px);
@@ -1913,6 +2210,12 @@ a {
 
   .gh-heatmap-skeleton {
     animation: none;
+  }
+
+  .gao-letter,
+  .gao-letter.is-pressed {
+    transition: none;
+    transform: none;
   }
 
   .about-card,

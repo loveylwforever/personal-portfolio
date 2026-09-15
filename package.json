@@ -14,6 +14,7 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@rexa-developer/tiks": "^0.3.0",
     "nuxt": "^4.5.2"
   },
   "devDependencies": {

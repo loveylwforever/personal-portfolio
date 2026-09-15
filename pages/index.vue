@@ -43,6 +43,10 @@ const toggleExperience = (index: number) => {
             <span>{{ profile.status }}</span>
           </div>
 
+          <ClientOnly>
+            <LazyGaoBlocks class="reveal reveal-2" />
+          </ClientOnly>
+
           <div class="hero-identity" data-read-safe="ink">
             <h1 id="hero-title" class="reveal reveal-2">
               {{ profile.name }}
