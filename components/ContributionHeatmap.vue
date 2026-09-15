@@ -124,8 +124,7 @@ const dayTitle = (day: ContributionDay) => {
         <svg
           class="gh-heatmap-svg"
           :viewBox="`0 0 ${svgWidth} ${svgHeight}`"
-          :width="svgWidth"
-          :height="svgHeight"
+          preserveAspectRatio="xMinYMid meet"
           role="img"
           :aria-label="`GitHub 贡献热点图，过去半年 ${data?.total ?? 0} 次贡献`"
         >
